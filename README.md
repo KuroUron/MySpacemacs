@@ -1,1 +1,2 @@
-"# MySpacemacs" 
+# MySpacemacs
+My spacemacs init files
