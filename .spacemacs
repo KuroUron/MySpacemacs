@@ -1,4 +1,4 @@
-;; -*- mode: emacs-lisp -*-
+; -*- mode: emacs-lisp -*-
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
@@ -31,6 +31,9 @@ values."
    ;; @ List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     html
+     ;; html
+     ;; javascript
      markdown
      csv
      windows-scripts
@@ -75,10 +78,25 @@ values."
                                       google-this
                                       yatex
                                       migemo
+                                      cmake-mode
+                                      ;; irony
+                                      ;; company-irony
+
+                                      ;; For Language Server Protocol
+                                      lsp-mode
+                                      lsp-ui
+                                      company-lsp
+                                      ;; cquery
+
+                                      ;; vmd-mode
+                                      ;; ein
+                                      ;; markdown-preview-mode
+                                      ;; dashboard
+                                      ;; jedi
                                       ;; ggtags
                                       ;; realgud-lldb
                                       ;; zen-mode
-                                      writeroom-mode
+                                      ;; writeroom-mode
                                       ;; minimap
                                       ;; ddskk
                                       ;; imenu-list
@@ -103,7 +121,7 @@ before layers configuration.
 You should not put any user code in there besides modifying the variable
 values."
   ;; This setq-default sexp is an exhaustive list of all the supported
-  ;; spacemacs settings.
+ ;; spacemacs settings.
   (setq-default
    ;; If non nil ELPA repositories are contacted via HTTPS whenever it's
    ;; possible. Set it to nil if you have no way to use HTTPS in your
@@ -154,9 +172,11 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(hemisu-dark
+   dotspacemacs-themes '(
+                         hemisu-dark
                          spacemacs-dark
-                         spacemacs-light)
+                         spacemacs-light
+                         )
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
@@ -351,12 +371,6 @@ you should place your code here."
   ;; (load-theme 'hemisu-dark t)
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; @ Font
-
-  ;; Default font
-  (set-face-font 'default "Migu 1M-14:antialias=standard")
-
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Linum
   (require 'linum)
 
@@ -385,6 +399,7 @@ you should place your code here."
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Org
   (require 'org)
+  ;; (autoload 'org "org" nil t)
   (add-hook 'org-mode-hook
             '(lambda ()
                (org-bullets-minor-mode nil)
@@ -404,6 +419,11 @@ you should place your code here."
       (before helm-emulate-kill-line activate)
     "Emulate `kill-line' in helm minibuffer"
     (kill-new (buffer-substring (point) (field-end))))
+
+  ;; Treatment for the following error:
+  ;; Error (use-package): helm/:config: Helm-mode enabled \
+  ;;   (Ido is incompatible with Helm-mode, disabling it)
+  (ido-mode nil)
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Helm-swoop
@@ -512,23 +532,125 @@ you should place your code here."
   ;;                                                       (skk-mode -1)
   ;;                                                       (evil-force-normal-state)))
 
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Auto-completion
 
-  (require 'auto-complete)
+  ;; ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; ;; @ Auto-completion
+
+  ;; (require 'auto-complete)
   ;; (global-auto-complete-mode)
 
-  (require 'auto-complete-config)
-  (ac-config-default)
-  (add-to-list 'ac-modes 'c-mode)
-  (add-to-list 'ac-modes 'c++-mode)
-  (add-to-list 'ac-modes 'yatex-mode)
+  ;; (require 'auto-complete-config)
 
-  ;; Completion selection by C-n/C-p
-  (setq ac-use-menu-map t)
+  ;; ;; Calling this function enables ac-mode for several modes, including c++-mode
+  ;; (ac-config-default)
 
-  ;; Yasnippet is also included in completion
-  (setq-default ac-sources (push 'ac-source-yasnippet ac-sources))
+  ;; ;; (add-to-list 'ac-modes 'c-mode)
+  ;; ;; (add-to-list 'ac-modes 'c++-mode)
+  ;; ;; (add-to-list 'ac-modes 'yatex-mode)
+  ;; ;; (add-to-list 'ac-modes 'python-mode)
+
+  ;; ;; Completion selection by C-n/C-p
+  ;; (setq ac-use-menu-map t)
+
+  ;; ;; Yasnippet is also included in completion
+  ;; (setq-default ac-sources (push 'ac-source-yasnippet ac-sources))
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ lsp-mode
+
+  (use-package lsp-mode
+    :commands lsp)
+  (use-package company-lsp)
+  (use-package lsp-ui
+    :config
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+  ;; company の backend に追加
+  (use-package company
+    :config
+    (global-company-mode)
+    (push 'company-lsp company-backends))
+
+  ;; python-mode の使用時に起動
+  (use-package python
+    :config
+    (add-hook 'python-mode-hook #'lsp))
+
+  ;; ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; ;; @ cquery
+
+  ;; (require 'cquery)
+  ;; ;; (setq cquery-executable "cquery.exe")
+
+  ;; ;; To turn on cquery for all C/C++ modes:
+  ;; (defun cquery//enable ()
+  ;;   (condition-case nil
+  ;;       (lsp)
+  ;;     (user-error nil)))
+
+  ;; (use-package cquery
+  ;;   :commands lsp-cquery-enable
+  ;;   :init (add-hook 'c-mode-hook #'cquery//enable)
+  ;;   (add-hook 'c++-mode-hook #'cquery//enable))
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ Company
+
+  (require 'company)
+  (global-company-mode t)
+
+  (setq company-idle-delay 0.2)
+  ;; (define-key company-active-map (kbd "C-h") 'nil)  ; for backspace
+  (define-key company-active-map (kbd "C-S-h") 'company-show-doc-buffer)  ; for doc
+
+  ;; Appearance
+  (set-face-attribute 'company-tooltip nil
+                      :foreground "black" :background "lightgrey")
+  (set-face-attribute 'company-tooltip-common nil
+                      :foreground "black" :background "lightgrey")
+  (set-face-attribute 'company-tooltip-common-selection nil
+                      :foreground "white" :background "steelblue")
+  (set-face-attribute 'company-tooltip-selection nil
+                      :foreground "black" :background "steelblue")
+  (set-face-attribute 'company-preview-common nil
+                      :background nil :foreground "white" :underline t)
+  (set-face-attribute 'company-scrollbar-fg nil
+                      :background "orange")
+  (set-face-attribute 'company-scrollbar-bg nil
+                      :background "gray40")
+
+
+  ;; ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; ;; @ irony-mode
+
+  ;; ;; NOTE How to build irony-server
+  ;; ;; Require:
+  ;; ;;   (1) irony has been installed by ELPA
+  ;; ;;   (2) clang has been installed by msys2
+  ;; ;; > cd c:/Users/shimizu_s/.emacs.d/elpa/irony-20181030.834/server/
+  ;; ;; > mkdir build & cd build
+  ;; ;; > cmake -DLIBCLANG_INCLUDE_DIR=c:/msys64/mingw64/include/llvm/ -DLIBCLANG_LIBRARY=c:/msys64/mingw64/lib/libclang.dll.a -DCMAKE_INSTALL_PREFIX=c:/Users/shimizu_s/.emacs.d/irony/ -DCMAKE_CXX_COMPILER=clang++ -G "MSYS Makefiles" ..
+  ;; ;; > cmake --build . --use-stderr --config Release --target install
+  ;; ;; or simply
+  ;; ;; 1. M-x irony-install-server
+  ;; ;; 2. "cmake" "-DCMAKE_INSTALL_PREFIX=c:/Users/shimizu_s/.emacs.d/irony/" "-DLIBCLANG_INCLUDE_DIR=c:/msys64/mingw64/include/llvm/" "-DLIBCLANG_LIBRARY=c:/msys64/mingw64/lib/libclang.dll.a" -G "MSYS Makefiles" "c:/Users/shimizu_s/.emacs.d/elpa/irony-20181030.834/server" && "cmake" --build . --use-stderr --config Release --target install
+
+  ;; ;; NOTE 2018-11-26 We use company-mode for irony front-end instead of
+  ;; ;; ac-irony, because (i) company-mode is the default front-end, and
+  ;; ;; (ii) cooperation of ac-irony and yasnippet seems not good.
+  ;; (require 'irony)
+  ;; (add-hook 'c-mode-hook 'irony-mode)
+  ;; (add-hook 'c++-mode-hook 'irony-mode)
+  ;; (add-to-list 'company-backends 'company-irony) ; Add back-end
+  ;; ;; (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)  ; for cmake
+
+  ;; ;; Windows performance tweaks
+  ;; (when (boundp 'w32-pipe-read-delay)
+  ;;   (setq w32-pipe-read-delay 0))
+  ;; ;; Set the buffer size to 64K on Windows (from the original 4K)
+  ;; (when (boundp 'w32-pipe-buffer-size)
+  ;;   (setq irony-server-w32-pipe-buffer-size (* 64 1024)))
+
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Yatex
@@ -555,6 +677,18 @@ you should place your code here."
   ;; Key-bind
   (eval-after-load 'yatex
     `(evil-define-key 'normal YaTeX-mode-map (kbd "C-j") 'my-typeset-and-dvi2pdf))
+  (eval-after-load 'yatex
+    `(evil-define-key 'normal YaTeX-mode-map (kbd "C-S-j") 'my-display-pdf))
+
+  ;; Input label (generated by date and time)
+  (defun input-label()
+    (interactive)
+    (insert (format-time-string "%Y%m%d%H%M%S" (current-time))))
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ flyspell
+  (add-hook 'yatex-mode-hook 'flyspell-mode)
+
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Yasnippet
@@ -613,6 +747,24 @@ you should place your code here."
   (eval-after-load 'python
     `(evil-define-key 'normal python-mode-map (kbd "E") 'my-python-run-env))
 
+
+  ;; ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; ;; @ jedi
+  ;; ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; ;; cf. http://ksknw.hatenablog.com/entry/2016/05/07/171239
+
+  ;; (jedi:setup)
+  ;; (define-key jedi-mode-map (kbd "<C-tab>") nil) ;;C-tabはウィンドウの移動に用いる
+  ;; (setq jedi:complete-on-dot t)
+  ;; (setq ac-sources
+  ;;       (delete 'ac-source-words-in-same-mode-buffers ac-sources)) ;;jediの補完候補だけでいい
+  ;; (add-to-list 'ac-sources 'ac-source-filename)
+  ;; (add-to-list 'ac-sources 'ac-source-jedi-direct)
+  ;; (define-key python-mode-map "\C-ct" 'jedi:goto-definition)
+  ;; (define-key python-mode-map "\C-cb" 'jedi:goto-definition-pop-marker)
+  ;; (define-key python-mode-map "\C-cr" 'helm-jedi-related-names)
+
+
   ;; ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; ;; @ Zen mode
   ;; (add-to-list 'load-path
@@ -643,7 +795,6 @@ you should place your code here."
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ IME
-
   (setq default-input-method "W32-IME")
   (setq-default w32-ime-mode-line-state-indicator "[--]")
   (setq w32-ime-mode-line-state-indicator-list '("[--]" "[JPN]" "[--]"))
@@ -679,6 +830,10 @@ you should place your code here."
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Realgud
 
+  ;; NOTE 2018-11-27 Aboud gdb.
+  ;; Since realgud seems incompatible with msys2's gdb, using mingw64's
+  ;; gdb is recommened.
+
   (require 'realgud)
 
   ;; For GDB
@@ -703,15 +858,28 @@ you should place your code here."
       (realgud:send-input)
       (other-window 1)))
 
+  ;; (defun my-gdb-print ()
+  ;;   (interactive)
+  ;;   (let ((word (find-tag-default))
+  ;;         (cmnd "print "))
+  ;;     (save-excursion
+  ;;       ;; (switch-to-buffer-other-window "*gdb a.exe shell*")
+  ;;       ;; (set-buffer "*gdb a.exe shell*")
+  ;;       (other-window 1)
+  ;;       (insert (concat cmnd word))
+  ;;       (realgud:send-input)
+  ;;       (other-window 1))))
+
+  ;; for 3-系
   (defun my-gdb-print ()
     (interactive)
-    (let ((word (find-tag-default))
-          (cmnd "print "))
+    (let* ((word (find-tag-default))
+           (cmnd (concat "print( " word " )")))
       (save-excursion
         ;; (switch-to-buffer-other-window "*gdb a.exe shell*")
         ;; (set-buffer "*gdb a.exe shell*")
         (other-window 1)
-        (insert (concat cmnd word))
+        (insert cmnd)
         (realgud:send-input)
         (other-window 1))))
 
@@ -720,10 +888,10 @@ you should place your code here."
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Realgud-lldb
-  (add-to-list 'load-path
-               (expand-file-name
-                "c:/Users/shimizu_s/.emacs.d/my_elisp/realgud-lldb-master"))
-  (require 'realgud-lldb)
+  ;; (add-to-list 'load-path
+  ;;              (expand-file-name
+  ;;               "c:/Users/shimizu_s/.emacs.d/my_elisp/realgud-lldb-master"))
+  ;; (require 'realgud-lldb)
 
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -777,12 +945,17 @@ of the buffer."
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ gtags
 
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ vmd-mode
+
+  ;; (require 'vmd-mode)
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Key-binding (keybinding)
 
   ;; C-h
-  (define-key global-map (kbd "C-h") (kbd "DEL"))
+  ;; (define-key global-map (kbd "C-h") (kbd "DEL"))
+  (keyboard-translate ?\C-h ?\C-?)
 
   ;; M-h
   (define-key global-map (kbd "M-h") 'backward-kill-word)
@@ -964,8 +1137,77 @@ of the buffer."
 
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; @ Other
+  ;; @ backup
 
+  ;; Backup files for file-open (~) (enabled: t, disabled: nil)
+  (setq make-backup-files   t)  ;; auto backup
+  (setq version-control     t)  ;; id for backup file
+  (setq kept-new-versions   5)  ;; number of the latest owned backup files
+  (setq kept-old-versions   0)  ;; number of the oldest owned backup files
+  (setq delete-old-versions t)  ;; deltetion of backup files
+
+  ;; Directory of backup files for file-open (~)
+  (setq backup-directory-alist
+        (cons (cons "\\.*$" (expand-file-name "c:/tmp/emacsbk"))
+              backup-directory-alist))
+
+  ;; Backup files for editing (enabled: t, disabled: nil)
+  (setq backup-inhibited t)
+
+  ;; Delete auto backup files when finished (enabled: t, disabled: nil)
+  (setq delete-auto-save-files nil)
+
+  ;; Backup files for editing (enabled: t, disabled: nil)
+  (setq auto-save-list-file-name nil)
+  (setq auto-save-list-file-prefix nil)
+
+  ;; Backup interval for editing file (sec)
+  (setq auto-save-timeout 3)
+
+  ;; Backup interval for editing file (key-stroke)
+  (setq auto-save-interval 100)
+
+  ;; Directory of backup files for editing (##)
+  (setq auto-save-file-name-transforms
+        `((".*" ,(expand-file-name "c:/tmp/emacsbk") t)))
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ whitespace
+
+  (require 'whitespace)
+
+  (setq whitespace-style '(face           ; faceで可視化
+                           trailing       ; 行末
+                           tabs           ; タブ
+                           ;; empty          ; 先頭/末尾の空行
+                           ;; space-mark     ; 表示のマッピング
+                           ;; tab-mark
+                           ))
+
+  ;; (setq whitespace-display-mappings
+  ;;       '((tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t])))
+
+  (global-whitespace-mode 1)
+
+  ;; タブの色
+  ;; (set-face-foreground 'whitespace-tab "DarkRed")
+  (set-face-foreground 'whitespace-tab "#222222")
+  (set-face-underline  'whitespace-tab t)
+  (set-face-background 'whitespace-tab nil)
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ Font
+
+  ;; Default font
+  (set-face-font 'default "Migu 1M-14:antialias=standard")
+
+  ;; (set-face-font 'default "Fira Code-12:antialias=standard")
+
+  ;; (w32-select-font)
+  ;; (font-family-list)
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ Other
 
   (spaceline-define-segment buffer-encoding-abbrev
     "The line ending convention used in the buffer."
@@ -1022,6 +1264,10 @@ of the buffer."
   ;; Open smp file as c++-mode
   (add-to-list 'auto-mode-alist '("\\.smp" . c++-mode))
 
+  ;; Tab width
+  ;; (setq defalt-tab-width 4)
+  (setq-default tab-width 8)
+
   ;; Delete whitespace before a save
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
@@ -1036,10 +1282,12 @@ of the buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#0a0814" "#f2241f" "#67b11d" "#b1951d" "#4f97d7" "#a31db1" "#28def0" "#b2b2b2"])
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (writeroom-mode visual-fill-column helm-gtags ggtags migemo smeargle orgit magit-gitflow helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub let-alist with-editor mmm-mode markdown-toc markdown-mode gh-md yatex google-this minimap realgud test-simple loc-changes load-relative org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help ag csv-mode powershell imenu-list helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda company auto-yasnippet yasnippet ac-ispell auto-complete ddskk cdb ccc yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic pt ack google-c-style outline-magic hemisu-theme evil-unimpaired ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+    (cquery lsp-ui company-lsp lsp-mode ht web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data markdown-preview-mode web-server ein websocket dashboard page-break-lines treepy graphql company-irony irony cmake-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern tern coffee-mode jedi jedi-core python-environment epc ctable concurrent deferred writeroom-mode visual-fill-column helm-gtags ggtags migemo smeargle orgit magit-gitflow helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub let-alist with-editor mmm-mode markdown-toc markdown-mode gh-md yatex google-this minimap realgud test-simple loc-changes load-relative org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help ag csv-mode powershell imenu-list helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda company auto-yasnippet yasnippet ac-ispell auto-complete ddskk cdb ccc yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic pt ack google-c-style outline-magic hemisu-theme evil-unimpaired ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
  '(realgud-safe-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
