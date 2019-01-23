@@ -62,6 +62,7 @@ values."
      ;; spell-checking
      ;; syntax-checking
      ;; version-control
+     (c-c++ :variables c-c++-enable-clang-support t)
      )
    ;; @ List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -80,13 +81,15 @@ values."
                                       yatex
                                       migemo
                                       cmake-mode
+                                      clang-format
+                                      ;; markdownpreview-mode
                                       ;; irony
                                       ;; company-irony
 
                                       ;; For Language Server Protocol
-                                      lsp-mode
-                                      lsp-ui
-                                      company-lsp
+                                      ;; lsp-mode
+                                      ;; lsp-ui
+                                      ;; company-lsp
                                       ;; cquery
 
                                       ;; vmd-mode
@@ -488,6 +491,24 @@ you should place your code here."
   (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ cpp, c
+
+  ;; (add-hook 'c++-mode-hook
+  ;;           (function (lambda ()
+  ;;                       (add-hook 'before-save-hook
+  ;;                                 'clang-format-buffer))))
+
+  ;; (add-hook 'c-mode-common-hook
+  ;;           (function (lambda ()
+  ;;                       (add-hook 'before-save-hook
+  ;;                                 'clang-format-buffer))))
+
+  ;; Bind clang-format-buffer to tab on the c++-mode only:
+  (add-hook 'c++-mode-hook 'clang-format-bindings)
+  (defun clang-format-bindings ()
+    (define-key c++-mode-map [tab] 'clang-format-buffer))
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Pt
   (require 'pt)
 
@@ -556,26 +577,26 @@ you should place your code here."
   ;; ;; Yasnippet is also included in completion
   ;; (setq-default ac-sources (push 'ac-source-yasnippet ac-sources))
 
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; @ lsp-mode
+  ;; ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; ;; @ lsp-mode
 
-  (use-package lsp-mode
-    :commands lsp)
-  (use-package company-lsp)
-  (use-package lsp-ui
-    :config
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+  ;; (use-package lsp-mode
+  ;;   :commands lsp)
+  ;; (use-package company-lsp)
+  ;; (use-package lsp-ui
+  ;;   :config
+  ;;   (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
-  ;; company の backend に追加
-  (use-package company
-    :config
-    (global-company-mode)
-    (push 'company-lsp company-backends))
+  ;; ;; company の backend に追加
+  ;; (use-package company
+  ;;   :config
+  ;;   (global-company-mode)
+  ;;   (push 'company-lsp company-backends))
 
-  ;; python-mode の使用時に起動
-  (use-package python
-    :config
-    (add-hook 'python-mode-hook #'lsp))
+  ;; ;; python-mode の使用時に起動
+  ;; (use-package python
+  ;;   :config
+  ;;   (add-hook 'python-mode-hook #'lsp))
 
   ;; ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; ;; @ cquery
@@ -952,6 +973,13 @@ of the buffer."
   ;; (require 'vmd-mode)
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; @ markdown
+
+  (require 'markdown-mode)
+  (define-key markdown-mode-map (kbd "C-o") 'markdown-cycle)
+  (hide-sublevels 2)
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; @ Key-binding (keybinding)
 
   ;; C-h
@@ -1288,7 +1316,7 @@ of the buffer."
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (vmd-mode cquery lsp-ui company-lsp lsp-mode ht web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data markdown-preview-mode web-server ein websocket dashboard page-break-lines treepy graphql company-irony irony cmake-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern tern coffee-mode jedi jedi-core python-environment epc ctable concurrent deferred writeroom-mode visual-fill-column helm-gtags ggtags migemo smeargle orgit magit-gitflow helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub let-alist with-editor mmm-mode markdown-toc markdown-mode gh-md yatex google-this minimap realgud test-simple loc-changes load-relative org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help ag csv-mode powershell imenu-list helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda company auto-yasnippet yasnippet ac-ispell auto-complete ddskk cdb ccc yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic pt ack google-c-style outline-magic hemisu-theme evil-unimpaired ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+    (disaster company-c-headers clang-format vmd-mode cquery lsp-ui company-lsp lsp-mode ht web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data markdown-preview-mode web-server ein websocket dashboard page-break-lines treepy graphql company-irony irony cmake-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern tern coffee-mode jedi jedi-core python-environment epc ctable concurrent deferred writeroom-mode visual-fill-column helm-gtags ggtags migemo smeargle orgit magit-gitflow helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub let-alist with-editor mmm-mode markdown-toc markdown-mode gh-md yatex google-this minimap realgud test-simple loc-changes load-relative org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help ag csv-mode powershell imenu-list helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda company auto-yasnippet yasnippet ac-ispell auto-complete ddskk cdb ccc yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic pt ack google-c-style outline-magic hemisu-theme evil-unimpaired ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
  '(realgud-safe-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -1296,6 +1324,10 @@ of the buffer."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(font-lock-comment-face ((t (:background "black" :foreground "#777777"))))
+ '(markdown-code-face ((t (:inherit nil))))
+ '(markdown-inline-code-face ((t (:inherit font-lock-constant-face))))
+ '(markdown-pre-face ((t (:inherit font-lock-constant-face))))
+ '(markdown-table-face ((t (:foreground "LightSkyBlue"))))
  '(org-level-1 ((t (:inherit (outline-2 outline-1)))))
  '(org-level-2 ((t (:inherit (outline-3 outline-2)))))
  '(org-level-3 ((t (:inherit (outline-5 outline-4 outline-3)))))
